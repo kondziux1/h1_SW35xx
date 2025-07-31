@@ -93,7 +93,7 @@ int SW35xx::i2cWriteReg8(const uint8_t reg, const uint8_t data) {
 }
 
 void SW35xx::begin(){
-  //启用输入电压读取
+  // Enable input voltage reading
   i2cWriteReg8(SW35XX_I2C_CTRL, 0x02);
 }
 
@@ -113,13 +113,13 @@ void SW35xx::readStatus(const bool useADCDataBuffer) {
   uint16_t iout_usba = 0;
 
   if (useADCDataBuffer) {
-    //读取输入电压
+    // Read input voltage
     vin = readADCDataBuffer(ADC_VIN);
-    //读取输出电压
+    // Read output voltage
     vout = readADCDataBuffer(ADC_VOUT);
-    //读取接口1输出电流
+    // Read output current on port 1 (type-C)
     iout_usbc = readADCDataBuffer(ADC_IOUT_USB_C);
-    //读取接口2输出电流
+    // Read output current on port 2 (type-A)
     iout_usba = readADCDataBuffer(ADC_IOUT_USB_A);
   } else {
     const uint8_t vin_vout_low = i2cReadReg8(SW35XX_ADC_VIN_VOUT_L);
@@ -137,7 +137,7 @@ void SW35xx::readStatus(const bool useADCDataBuffer) {
 
   vin_mV = vin * 10;
   vout_mV = vout * 6;
-  if (iout_usbc > 15) //在没有输出的情况下读到的数据是15
+  if (iout_usbc > 15) // When no output, data read is 15
     iout_usbc_mA = iout_usbc * 5 / 2;
   else
     iout_usbc_mA = 0;
@@ -146,7 +146,7 @@ void SW35xx::readStatus(const bool useADCDataBuffer) {
     iout_usba_mA = iout_usba * 5 / 2;
   else
     iout_usba_mA = 0;
-  //读取pd版本和快充协议
+  // Read PD version and fast charge protocol
   const uint8_t status = i2cReadReg8(SW35XX_FCX_STATUS);
   PDVersion = ((status & 0x30) >> 4) + 1;
   fastChargeType = (fastChargeType_t)(status & 0x0f);
@@ -161,7 +161,7 @@ float SW35xx::readTemperature(const bool useADCDataBuffer) {
     temperature = i2cReadReg8(SW35XX_ADC_TS_H) << 4;
     temperature |= i2cReadReg8(SW35XX_ADC_TS_L) & 0x0F;
   }
-
+  
   /* return it in mV */
   return temperature * 0.5;
 }
@@ -197,7 +197,7 @@ void SW35xx::setMaxCurrent5A() {
 }
 
 void SW35xx::setQuickChargeConfiguration(const uint16_t flags,
-    const enum QuickChargePowerClass power) {
+const enum QuickChargePowerClass power) {
   /* mask all available bits to avoid setting reserved bits */
   const uint16_t validFlags = flags & QC_CONF_ALL;
   const uint16_t validPower = power & QC_PWR_20V_2;
